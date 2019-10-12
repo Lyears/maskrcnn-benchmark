@@ -1,6 +1,8 @@
 import os
 
 from pycocotools.coco import COCO
+from demo.predictor import COCODemo
+from maskrcnn_benchmark.config import cfg
 import matplotlib.pylab as pylab
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,14 +15,16 @@ test_images_dir = '{}/test'.format(dataset_dir)
 test_ann_file = '{}/kiktech_test.json'.format(annotations_dir)
 coco = COCO(test_ann_file)
 
-if __name__ == '__main__':
-    categories = coco.loadCats(coco.getCatIds())
-    catIds = coco.getCatIds(catNms=['mask_person_top'])
-    # print(len(coco.loadCats(coco.getCatIds())))
-    imgIds = coco.getImgIds()
-    img = coco.loadImgs(imgIds[np.random.randint(0, len(imgIds))])[0]
-    image_path = test_images_dir + '/{}'.format(img['file_name'])
-    I = cv2.imread(image_path)
+config_file = './configs/e2e_mask_rcnn_R_50_FPN_1x_copy.yaml'
+cfg.merge_from_file(config_file)
+coco_demo = COCODemo(
+    cfg,
+    # TODO: add confidence threshold
+)
+
+
+def evaluation_in_coco(f_image_path):
+    I = cv2.imread(f_image_path)
     plt.axis('off')
     plt.imshow(I)
     # plt.show()
@@ -38,3 +42,26 @@ if __name__ == '__main__':
     coco.showAnns(anns)
     plt.imshow(I)
     plt.show()
+
+
+def evaluation_in_model(f_image_path):
+    I = cv2.imread(f_image_path)
+    composite = coco_demo.run_on_opencv_image(I)
+    cv2.imshow("predict detections", composite)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    categories = coco.loadCats(coco.getCatIds())
+    print(categories)
+    for n in range(len(categories)):
+        print(categories[n]['name'])
+    catIds = coco.getCatIds(catNms=['mask_person_top'])
+    # print(len(coco.loadCats(coco.getCatIds())))
+    imgIds = coco.getImgIds()
+    img = coco.loadImgs(imgIds[np.random.randint(0, len(imgIds))])[0]
+    image_path = test_images_dir + '/{}'.format(img['file_name'])
+
+    evaluation_in_coco(image_path)
+    evaluation_in_model(image_path)

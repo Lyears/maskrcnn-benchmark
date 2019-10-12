@@ -10,6 +10,7 @@ from maskrcnn_benchmark.modeling.roi_heads.mask_head.inference import Masker
 from maskrcnn_benchmark import layers as L
 from maskrcnn_benchmark.utils import cv2_util
 
+
 class Resize(object):
     def __init__(self, min_size, max_size):
         self.min_size = min_size
@@ -42,100 +43,116 @@ class Resize(object):
         size = self.get_size(image.size)
         image = F.resize(image, size)
         return image
+
+
 class COCODemo(object):
     # COCO categories for pretty print
-    CATEGORIES = [
-        "__background",
-        "person",
-        "bicycle",
-        "car",
-        "motorcycle",
-        "airplane",
-        "bus",
-        "train",
-        "truck",
-        "boat",
-        "traffic light",
-        "fire hydrant",
-        "stop sign",
-        "parking meter",
-        "bench",
-        "bird",
-        "cat",
-        "dog",
-        "horse",
-        "sheep",
-        "cow",
-        "elephant",
-        "bear",
-        "zebra",
-        "giraffe",
-        "backpack",
-        "umbrella",
-        "handbag",
-        "tie",
-        "suitcase",
-        "frisbee",
-        "skis",
-        "snowboard",
-        "sports ball",
-        "kite",
-        "baseball bat",
-        "baseball glove",
-        "skateboard",
-        "surfboard",
-        "tennis racket",
-        "bottle",
-        "wine glass",
-        "cup",
-        "fork",
-        "knife",
-        "spoon",
-        "bowl",
-        "banana",
-        "apple",
-        "sandwich",
-        "orange",
-        "broccoli",
-        "carrot",
-        "hot dog",
-        "pizza",
-        "donut",
-        "cake",
-        "chair",
-        "couch",
-        "potted plant",
-        "bed",
-        "dining table",
-        "toilet",
-        "tv",
-        "laptop",
-        "mouse",
-        "remote",
-        "keyboard",
-        "cell phone",
-        "microwave",
-        "oven",
-        "toaster",
-        "sink",
-        "refrigerator",
-        "book",
-        "clock",
-        "vase",
-        "scissors",
-        "teddy bear",
-        "hair drier",
-        "toothbrush",
-    ]
+    # CATEGORIES = [
+    #     "__background",
+    #     "person",
+    #     "bicycle",
+    #     "car",
+    #     "motorcycle",
+    #     "airplane",
+    #     "bus",
+    #     "train",
+    #     "truck",
+    #     "boat",
+    #     "traffic light",
+    #     "fire hydrant",
+    #     "stop sign",
+    #     "parking meter",
+    #     "bench",
+    #     "bird",
+    #     "cat",
+    #     "dog",
+    #     "horse",
+    #     "sheep",
+    #     "cow",
+    #     "elephant",
+    #     "bear",
+    #     "zebra",
+    #     "giraffe",
+    #     "backpack",
+    #     "umbrella",
+    #     "handbag",
+    #     "tie",
+    #     "suitcase",
+    #     "frisbee",
+    #     "skis",
+    #     "snowboard",
+    #     "sports ball",
+    #     "kite",
+    #     "baseball bat",
+    #     "baseball glove",
+    #     "skateboard",
+    #     "surfboard",
+    #     "tennis racket",
+    #     "bottle",
+    #     "wine glass",
+    #     "cup",
+    #     "fork",
+    #     "knife",
+    #     "spoon",
+    #     "bowl",
+    #     "banana",
+    #     "apple",
+    #     "sandwich",
+    #     "orange",
+    #     "broccoli",
+    #     "carrot",
+    #     "hot dog",
+    #     "pizza",
+    #     "donut",
+    #     "cake",
+    #     "chair",
+    #     "couch",
+    #     "potted plant",
+    #     "bed",
+    #     "dining table",
+    #     "toilet",
+    #     "tv",
+    #     "laptop",
+    #     "mouse",
+    #     "remote",
+    #     "keyboard",
+    #     "cell phone",
+    #     "microwave",
+    #     "oven",
+    #     "toaster",
+    #     "sink",
+    #     "refrigerator",
+    #     "book",
+    #     "clock",
+    #     "vase",
+    #     "scissors",
+    #     "teddy bear",
+    #     "hair drier",
+    #     "toothbrush",
+    # ]
+
+    # use kiktech categories
+    CATEGORIES = ["__background",
+                  "ignore",
+                  "mask_person_top",
+                  "mask_plastic_3_pallet_top",
+                  "mask_goods_pallet_top",
+                  "mask_handjack_top",
+                  "forklift_walkie_kiktech_empty_top",
+                  "sf_forklift_auto_empty_top",
+                  "sf_forklift_manual_empty_top",
+                  "forklift_walkie_kiktech_loaded_top",
+                  "sf_forklift_auto_loaded_top",
+                  "sf_forklift_manual_loaded_top"]
 
     def __init__(
-        self,
-        cfg,
-        confidence_threshold=0.7,
-        show_mask_heatmaps=False,
-        masks_per_dim=2,
-        min_image_size=224,
-        weight_loading = None
+            self,
+            cfg,
+            confidence_threshold=0.7,
+            show_mask_heatmaps=False,
+            masks_per_dim=2,
+            min_image_size=224,
+            weight_loading=None
     ):
         self.cfg = cfg.clone()
         self.model = build_detection_model(cfg)
@@ -147,11 +164,11 @@ class COCODemo(object):
         save_dir = cfg.OUTPUT_DIR
         checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)
         _ = checkpointer.load(cfg.MODEL.WEIGHT)
-        
+
         if weight_loading:
             print('Loading weight from {}.'.format(weight_loading))
             _ = checkpointer._load_model(torch.load(weight_loading))
-        
+
         self.transforms = self.build_transform()
 
         mask_threshold = -1 if show_mask_heatmaps else 0.5
@@ -406,9 +423,11 @@ class COCODemo(object):
 
         return image
 
+
 import numpy as np
 import matplotlib.pyplot as plt
 from maskrcnn_benchmark.structures.keypoint import PersonKeypoints
+
 
 def vis_keypoints(img, kps, kp_thresh=2, alpha=0.7):
     """Visualizes keypoints (adapted from vis_one_image).
@@ -427,14 +446,14 @@ def vis_keypoints(img, kps, kp_thresh=2, alpha=0.7):
 
     # Draw mid shoulder / mid hip first for better visualization.
     mid_shoulder = (
-        kps[:2, dataset_keypoints.index('right_shoulder')] +
-        kps[:2, dataset_keypoints.index('left_shoulder')]) / 2.0
+                           kps[:2, dataset_keypoints.index('right_shoulder')] +
+                           kps[:2, dataset_keypoints.index('left_shoulder')]) / 2.0
     sc_mid_shoulder = np.minimum(
         kps[2, dataset_keypoints.index('right_shoulder')],
         kps[2, dataset_keypoints.index('left_shoulder')])
     mid_hip = (
-        kps[:2, dataset_keypoints.index('right_hip')] +
-        kps[:2, dataset_keypoints.index('left_hip')]) / 2.0
+                      kps[:2, dataset_keypoints.index('right_hip')] +
+                      kps[:2, dataset_keypoints.index('left_hip')]) / 2.0
     sc_mid_hip = np.minimum(
         kps[2, dataset_keypoints.index('right_hip')],
         kps[2, dataset_keypoints.index('left_hip')])

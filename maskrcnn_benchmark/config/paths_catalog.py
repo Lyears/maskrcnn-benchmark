@@ -7,6 +7,67 @@ import os
 class DatasetCatalog(object):
     DATA_DIR = "datasets"
     DATASETS = {
+        # add kiktech data
+        "skyeye_cocostyle_0619_train": {
+            "img_dir": "kiktech/skyeye0619_extra/train",
+            "ann_file": "kiktech/skyeye0619_extra/annotations/kiktech_train.json"
+        },
+        "skyeye_cocostyle_0619_test": {
+            "img_dir": "kiktech/skyeye0619_extra/test",
+            "ann_file": "kiktech/skyeye0619_extra/annotations/kiktech_test.json"
+        },
+        "skyeye_cocostyle_0619_val": {
+            "img_dir": "kiktech/skyeye0619_extra/val",
+            "ann_file": "kiktech/skyeye0619_extra/annotations/kiktech_val.json"
+        },
+        "skyeye_cocostyle_0625_train": {
+            "img_dir": "kiktech/skyeye0625_extra/train",
+            "ann_file": "kiktech/skyeye0625_extra/annotations/kiktech_train.json"
+        },
+        "skyeye_cocostyle_0625_test": {
+            "img_dir": "kiktech/skyeye0625_extra/test",
+            "ann_file": "kiktech/skyeye0625_extra/annotations/kiktech_test.json"
+        },
+        "skyeye_cocostyle_0625_val": {
+            "img_dir": "kiktech/skyeye0625_extra/val",
+            "ann_file": "kiktech/skyeye0625_extra/annotations/kiktech_val.json"
+        },
+        "skyeye_cocostyle_0706_train": {
+            "img_dir": "kiktech/skyeye0706_extra/train",
+            "ann_file": "kiktech/skyeye0706_extra/annotations/kiktech_train.json"
+        },
+        "skyeye_cocostyle_0706_test": {
+            "img_dir": "kiktech/skyeye0706_extra/test",
+            "ann_file": "kiktech/skyeye0706_extra/annotations/kiktech_test.json"
+        },
+        "skyeye_cocostyle_0706_val": {
+            "img_dir": "kiktech/skyeye0706_extra/val",
+            "ann_file": "kiktech/skyeye0706_extra/annotations/kiktech_val.json"
+        },
+        "skyeye_cocostyle_0713_train": {
+            "img_dir": "kiktech/skyeye0713_extra/train",
+            "ann_file": "kiktech/skyeye0713_extra/annotations/kiktech_train.json"
+        },
+        "skyeye_cocostyle_0713_test": {
+            "img_dir": "kiktech/skyeye0713_extra/test",
+            "ann_file": "kiktech/skyeye0713_extra/annotations/kiktech_test.json"
+        },
+        "skyeye_cocostyle_0713_val": {
+            "img_dir": "kiktech/skyeye0713_extra/val",
+            "ann_file": "kiktech/skyeye0713_extra/annotations/kiktech_val.json"
+        },
+        "skyeye_cocostyle_0718_train": {
+            "img_dir": "kiktech/skyeye0718_extra/train",
+            "ann_file": "kiktech/skyeye0718_extra/annotations/kiktech_train.json"
+        },
+        "skyeye_cocostyle_0718_test": {
+            "img_dir": "kiktech/skyeye0718_extra/test",
+            "ann_file": "kiktech/skyeye0718_extra/annotations/kiktech_test.json"
+        },
+        "skyeye_cocostyle_0718_val": {
+            "img_dir": "kiktech/skyeye0718_extra/val",
+            "ann_file": "kiktech/skyeye0718_extra/annotations/kiktech_val.json"
+        },
         "coco_2017_train": {
             "img_dir": "coco/train2017",
             "ann_file": "coco/annotations/instances_train2017.json"
