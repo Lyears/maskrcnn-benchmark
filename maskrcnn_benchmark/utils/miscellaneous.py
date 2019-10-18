@@ -4,6 +4,7 @@ import json
 import logging
 import os
 from .comm import is_main_process
+from maskrcnn_benchmark.data.datasets import ConcatDataset
 
 
 def mkdir(path):
@@ -20,7 +21,12 @@ def save_labels(dataset_list, output_dir):
 
         ids_to_labels = {}
         for dataset in dataset_list:
-            if hasattr(dataset, 'categories'):
+            # add ConcatDataset check
+            if isinstance(dataset, ConcatDataset):
+                for sub_dataset in dataset.datasets:
+                    if hasattr(sub_dataset, 'categories'):
+                        ids_to_labels.update(sub_dataset.categories)
+            elif hasattr(dataset, 'categories'):
                 ids_to_labels.update(dataset.categories)
             else:
                 logger.warning("Dataset [{}] has no categories attribute, labels.json file won't be created".format(

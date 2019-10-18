@@ -5,9 +5,10 @@ DATALOADER:
   SIZE_DIVISIBILITY: 32
 DATASETS:
   TEST:
-  - skyeye_cocostyle_0619_test
+  - skyeye_cocostyle_test
   TRAIN:
-  - skyeye_cocostyle_0619_train
+  - skyeye_cocostyle_train
+  - skyeye_cocostyle_val
 DTYPE: float32
 INPUT:
   BRIGHTNESS: 0.0
@@ -217,9 +218,9 @@ MODEL:
 OUTPUT_DIR: ./kiktech_weight/
 PATHS_CATALOG: /home/zmfan/PycharmProjects/detection/maskrcnn-benchmark/maskrcnn_benchmark/config/paths_catalog.py
 SOLVER:
-  BASE_LR: 0.02
+  BASE_LR: 0.01
   BIAS_LR_FACTOR: 2
-  CHECKPOINT_PERIOD: 1800
+  CHECKPOINT_PERIOD: 7200
   GAMMA: 0.1
   IMS_PER_BATCH: 1
   MAX_ITER: 72000
