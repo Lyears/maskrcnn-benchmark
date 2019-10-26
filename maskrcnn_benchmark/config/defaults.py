@@ -288,6 +288,14 @@ _C.MODEL.RESNETS.DEFORMABLE_GROUPS = 1
 
 
 # ---------------------------------------------------------------------------- #
+# MobileNet Options (The light-weight backbone)
+# ---------------------------------------------------------------------------- #
+_C.MODEL.MOBILENETS = CN()
+_C.MODEL.MOBILENETS.BACKBONE_OUT_CHANNELS = 160
+_C.MODEL.MOBILENETS.BNECK2_OUT_CHANNELS = 24
+_C.MODEL.MOBILENETS.STEM_OUT_CHANNELS = 16
+
+# ---------------------------------------------------------------------------- #
 # RetinaNet Options (Follow the Detectron version)
 # ---------------------------------------------------------------------------- #
 _C.MODEL.RETINANET = CN()

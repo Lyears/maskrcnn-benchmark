@@ -7,6 +7,7 @@ import matplotlib.pylab as pylab
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import time
 
 # set image dpi
 plt.rcParams['figure.dpi'] = 300
@@ -64,7 +65,8 @@ def evaluation_in_coco(f_image_path):
 
 def evaluation_in_model(f_image_path):
     I = cv2.imread(f_image_path)
-    composite = coco_demo.run_on_opencv_image(I)
+    composite, total_time = coco_demo.run_on_opencv_image(I)
+    print(total_time)
     cv2.imshow("predict detections", composite)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

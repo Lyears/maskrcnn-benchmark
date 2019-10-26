@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import cv2
 import torch
+import time
 from torchvision import transforms as T
 from torchvision.transforms import functional as F
 from maskrcnn_benchmark.modeling.detector import build_detection_model
@@ -223,8 +224,11 @@ class COCODemo(object):
                 of the detection properties can be found in the fields of
                 the BoxList via `prediction.fields()`
         """
+        # add time test
+        start_time = time.time()
         predictions = self.compute_prediction(image)
         top_predictions = self.select_top_predictions(predictions)
+        end_time = time.time()
 
         result = image.copy()
         if self.show_mask_heatmaps:
@@ -236,7 +240,7 @@ class COCODemo(object):
             result = self.overlay_keypoints(result, top_predictions)
         result = self.overlay_class_names(result, top_predictions)
 
-        return result
+        return result, end_time - start_time
 
     def compute_prediction(self, original_image):
         """

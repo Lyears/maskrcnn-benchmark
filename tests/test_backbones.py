@@ -12,6 +12,7 @@ from utils import load_config
 
 # overwrite configs if specified, otherwise default config is used
 BACKBONE_CFGS = {
+    "MobileNetV3": "e2e_mask_rcnn_R_50_FPN_1x_copy.yaml",
     "R-50-FPN": "e2e_faster_rcnn_R_50_FPN_1x.yaml",
     "R-101-FPN": "e2e_faster_rcnn_R_101_FPN_1x.yaml",
     "R-152-FPN": "e2e_faster_rcnn_R_101_FPN_1x.yaml",
