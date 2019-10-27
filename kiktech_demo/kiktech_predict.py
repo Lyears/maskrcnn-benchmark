@@ -2,7 +2,11 @@ import os
 
 from pycocotools.coco import COCO
 from demo.predictor import COCODemo
+import torch
+from torchvision.transforms import transforms as T
 from maskrcnn_benchmark.config import cfg
+from maskrcnn_benchmark.modeling.detector import build_detection_model
+from maskrcnn_benchmark.structures.image_list import to_image_list
 import matplotlib.pylab as pylab
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,15 +23,63 @@ test_images_dir = '{}/test'.format(dataset_dir)
 test_ann_file = '{}/kiktech_test.json'.format(annotations_dir)
 coco = COCO(test_ann_file)
 
-config_file = './configs/e2e_mask_rcnn_R_50_FPN_1x_copy.yaml'
+config_file = './configs/e2e_mask_rcnn_MobileNet_V3.yaml'
 cfg.merge_from_file(config_file)
 coco_demo = COCODemo(
     cfg,
     # TODO: add confidence threshold
 )
+device = torch.device(cfg.MODEL.DEVICE)
+
+
+def build_transforms(cfg):
+    """
+    copy from predictor
+    """
+    normalize_transform = T.Normalize(
+        mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD
+    )
+    min_size = cfg.INPUT.MIN_SIZE_TEST
+    max_size = cfg.INPUT.MAX_SIZE_TEST
+    transform = T.Compose(
+        [
+            T.ToPILImage(),
+            T.ToTensor(),
+            normalize_transform,
+        ]
+    )
+    return transform
+
+
+def calculate_time(images, transforms):
+    """
+    :param images:images info list
+    :param transforms: the transform function
+    :return: The time it takes to load each image
+    """
+    model = build_detection_model(cfg)
+    model.eval()
+    model.to(device)
+    images_paths = [_["file_name"] for _ in images]
+    start_time = time.time()
+    for img_path in images_paths:
+        img_path = test_images_dir + '/{}'.format(img_path)
+        I = cv2.imread(img_path)
+        I = transforms(I)
+        I = to_image_list(I, 32)
+        I = I.to(device)
+        with torch.no_grad():
+            model(I)
+    end_time = time.time()
+    total_time = end_time - start_time
+    per_time = total_time / len(images)
+    return per_time
 
 
 def compute_label_color(labels):
+    """
+    copy from predictor
+    """
     palette = np.array([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
     labels = np.array(labels)
     colors = labels[:, None] * palette
@@ -80,6 +132,8 @@ if __name__ == '__main__':
     catIds = coco.getCatIds(catNms=['mask_person_top'])
     # print(len(coco.loadCats(coco.getCatIds())))
     imgIds = coco.getImgIds()
+    all_images = coco.loadImgs(imgIds)
+    print("the time it takes to load each image is {}.".format(calculate_time(all_images, build_transforms(cfg))))
     img = coco.loadImgs(imgIds[np.random.randint(0, len(imgIds))])[0]
     image_path = test_images_dir + '/{}'.format(img['file_name'])
 
