@@ -30,11 +30,13 @@ class BoxCoder(object):
         """
 
         TO_REMOVE = 1  # TODO remove
+        # 计算候选框
         ex_widths = proposals[:, 2] - proposals[:, 0] + TO_REMOVE
         ex_heights = proposals[:, 3] - proposals[:, 1] + TO_REMOVE
         ex_ctr_x = proposals[:, 0] + 0.5 * ex_widths
         ex_ctr_y = proposals[:, 1] + 0.5 * ex_heights
 
+        # 计算基准边框
         gt_widths = reference_boxes[:, 2] - reference_boxes[:, 0] + TO_REMOVE
         gt_heights = reference_boxes[:, 3] - reference_boxes[:, 1] + TO_REMOVE
         gt_ctr_x = reference_boxes[:, 0] + 0.5 * gt_widths
@@ -54,6 +56,7 @@ class BoxCoder(object):
         From a set of original boxes and encoded relative box offsets,
         get the decoded boxes.
 
+        根据得到的候选框以及与之对应的中心x,y,宽和高的各部分的回归值和得到预测边框
         Arguments:
             rel_codes (Tensor): encoded boxes
             boxes (Tensor): reference boxes.

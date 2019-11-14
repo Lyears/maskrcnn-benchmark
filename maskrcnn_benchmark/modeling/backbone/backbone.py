@@ -8,6 +8,7 @@ from maskrcnn_benchmark.modeling.make_layers import conv_with_kaiming_uniform
 from . import fpn as fpn_module
 from . import resnet
 from . import mobilenet
+from . import shufflenet
 
 
 @registry.BACKBONES.register("R-50-C4")
@@ -56,6 +57,23 @@ def build_mobilenet_fpn_backbone(cfg):
         in_channels_list=[
             24, 40, 80, 160
         ],
+        out_channels=out_channels,
+        conv_block=conv_with_kaiming_uniform(
+            cfg.MODEL.FPN.USE_GN, cfg.MODEL.FPN.USE_RELU
+        ),
+        top_blocks=fpn_module.LastLevelMaxPool(),
+    )
+    model = nn.Sequential(OrderedDict([("body", body), ("fpn", fpn)]))
+    model.out_channels = out_channels
+    return model
+
+
+@registry.BACKBONES.register("ShuffleNetV2")
+def build_shufflenet_fpn_backbone(cfg):
+    body = shufflenet.shufflenet_v2_x2_0()
+    out_channels = 976
+    fpn = fpn_module.FPN(
+        in_channels_list=[24, 244, 488, 976],
         out_channels=out_channels,
         conv_block=conv_with_kaiming_uniform(
             cfg.MODEL.FPN.USE_GN, cfg.MODEL.FPN.USE_RELU

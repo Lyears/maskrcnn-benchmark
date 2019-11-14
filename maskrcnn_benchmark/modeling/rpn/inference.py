@@ -66,6 +66,7 @@ class RPNPostProcessor(torch.nn.Module):
         for gt_box in gt_boxes:
             gt_box.add_field("objectness", torch.ones(len(gt_box), device=device))
 
+        # TODO: add a function to filter the proposal
         proposals = [
             cat_boxlist((proposal, gt_box))
             for proposal, gt_box in zip(proposals, gt_boxes)
@@ -81,9 +82,11 @@ class RPNPostProcessor(torch.nn.Module):
             box_regression: tensor of size N, A * 4, H, W
         """
         device = objectness.device
+        # 得到Ｎ=图片数（batch）,A=ratio数,H=该层特征图高,W=该层特征图宽
         N, A, H, W = objectness.shape
 
         # put in the same format as anchors
+        # 在得到的目标特征图上扩充一维,该维度为特定特征图的某一个位置上anchor内是否有目标。然后取消掉除FPN层数以外的所有维度，合并到一个维度上，将图片数，高，宽等信息压缩为一维。
         objectness = permute_and_flatten(objectness, N, A, 1, H, W).view(N, -1)
         objectness = objectness.sigmoid()
 
@@ -92,6 +95,8 @@ class RPNPostProcessor(torch.nn.Module):
         num_anchors = A * H * W
 
         pre_nms_top_n = min(self.pre_nms_top_n, num_anchors)
+        # Top K
+        # 得到前pre_nms_top_n个目标评分最高的anchor的目标评分以及该anchor在anchor列表中的索引
         objectness, topk_idx = objectness.topk(pre_nms_top_n, dim=1, sorted=True)
 
         batch_idx = torch.arange(N, device=device)[:, None]
@@ -132,6 +137,7 @@ class RPNPostProcessor(torch.nn.Module):
         Returns:
             boxlists (list[BoxList]): the post-processed anchors, after
                 applying box decoding and NMS
+                经过边框解码和NMS处理后剩下的anchors
         """
         sampled_boxes = []
         num_levels = len(objectness)
@@ -145,7 +151,7 @@ class RPNPostProcessor(torch.nn.Module):
         if num_levels > 1:
             boxlists = self.select_over_all_levels(boxlists)
 
-        # append ground-truth bboxes to proposals
+        # append ground-truth bboxes to proposals 把基准边框添加到预测边框里
         if self.training and targets is not None:
             boxlists = self.add_gt_proposals(boxlists, targets)
 

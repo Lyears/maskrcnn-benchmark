@@ -59,7 +59,7 @@ class FPN(nn.Module):
             inner_top_down = F.interpolate(last_inner, scale_factor=2, mode="nearest")
             inner_lateral = getattr(self, inner_block)(feature)
             # TODO use size instead of scale to make it robust to different sizes
-            # inner_top_down = F.upsample(last_inner, size=inner_lateral.shape[-2:],
+            # inner_top_down = F.interpolate(last_inner, size=inner_lateral.shape[-2:],
             # mode='bilinear', align_corners=False)
             last_inner = inner_lateral + inner_top_down
             results.insert(0, getattr(self, layer_block)(last_inner))

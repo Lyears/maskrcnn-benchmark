@@ -32,11 +32,16 @@ class RPNLossComputation(object):
             box_coder (BoxCoder)
         """
         # self.target_preparator = target_preparator
+        # 指定边框匹配函数，用于找到与anchor对应的基准边框(gt）
         self.proposal_matcher = proposal_matcher
+        # 指定目标anchor和背景anchor选择函数，用于选择一定比例的背景和目标边框
         self.fg_bg_sampler = fg_bg_sampler
+        # 指定边框编码函数，用以实现边框回归和得到预测边框
         self.box_coder = box_coder
         self.copied_fields = []
+        # 指定标签生成函数，用以生成anchor对应的基准边框的索引
         self.generate_labels_func = generate_labels_func
+        # 指定需要放弃的anchor类型
         self.discard_cases = ['not_visibility', 'between_thresholds']
 
     def match_targets_to_anchors(self, anchor, target, copied_fields=[]):
@@ -56,6 +61,7 @@ class RPNLossComputation(object):
     def prepare_targets(self, anchors, targets):
         labels = []
         regression_targets = []
+        # 循环从每一张图片中读取锚点和gt,然后进行处理
         for anchors_per_image, targets_per_image in zip(anchors, targets):
             matched_targets = self.match_targets_to_anchors(
                 anchors_per_image, targets_per_image, self.copied_fields
@@ -78,6 +84,12 @@ class RPNLossComputation(object):
                 inds_to_discard = matched_idxs == Matcher.BETWEEN_THRESHOLDS
                 labels_per_image[inds_to_discard] = -1
 
+            # todo: 丢掉IoU与ignore region 过高的anchor
+            ignore_label_index = (targets_per_image.get_field("labels") == 1).nonzero()
+            for n in ignore_label_index:
+                inds_to_discard = matched_idxs == int(n)
+                labels_per_image[inds_to_discard] = -1
+
             # compute regression targets
             regression_targets_per_image = self.box_coder.encode(
                 matched_targets.bbox, anchors_per_image.bbox
@@ -87,7 +99,6 @@ class RPNLossComputation(object):
             regression_targets.append(regression_targets_per_image)
 
         return labels, regression_targets
-
 
     def __call__(self, anchors, objectness, box_regression, targets):
         """
@@ -110,7 +121,7 @@ class RPNLossComputation(object):
         sampled_inds = torch.cat([sampled_pos_inds, sampled_neg_inds], dim=0)
 
         objectness, box_regression = \
-                concat_box_prediction_layers(objectness, box_regression)
+            concat_box_prediction_layers(objectness, box_regression)
 
         objectness = objectness.squeeze()
 
@@ -130,8 +141,14 @@ class RPNLossComputation(object):
 
         return objectness_loss, box_loss
 
+
 # This function should be overwritten in RetinaNet
 def generate_rpn_labels(matched_targets):
+    """
+    生成锚点的标签，有目标的锚点标签为１，没有的为0
+    :param matched_targets:
+    :return:
+    """
     matched_idxs = matched_targets.get_field("matched_idxs")
     labels_per_image = matched_idxs >= 0
     return labels_per_image

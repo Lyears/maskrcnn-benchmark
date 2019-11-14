@@ -133,7 +133,7 @@ if __name__ == '__main__':
     # print(len(coco.loadCats(coco.getCatIds())))
     imgIds = coco.getImgIds()
     all_images = coco.loadImgs(imgIds)
-    print("the time it takes to load each image is {}.".format(calculate_time(all_images, build_transforms(cfg))))
+    # print("the time it takes to load each image is {}.".format(calculate_time(all_images, build_transforms(cfg))))
     img = coco.loadImgs(imgIds[np.random.randint(0, len(imgIds))])[0]
     image_path = test_images_dir + '/{}'.format(img['file_name'])
 

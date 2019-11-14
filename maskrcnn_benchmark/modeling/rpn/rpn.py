@@ -87,11 +87,13 @@ class RPNHead(nn.Module):
         self.conv = nn.Conv2d(
             in_channels, in_channels, kernel_size=3, stride=1, padding=1
         )
+        # 产生两个分支：锚点(anchor)的分类信息层、锚点的边框（×４）回归信息
         self.cls_logits = nn.Conv2d(in_channels, num_anchors, kernel_size=1, stride=1)
         self.bbox_pred = nn.Conv2d(
             in_channels, num_anchors * 4, kernel_size=1, stride=1
         )
 
+        # 初始化网络参数
         for l in [self.conv, self.cls_logits, self.bbox_pred]:
             torch.nn.init.normal_(l.weight, std=0.01)
             torch.nn.init.constant_(l.bias, 0)
@@ -119,11 +121,13 @@ class RPNModule(torch.nn.Module):
 
         anchor_generator = make_anchor_generator(cfg)
 
+        # SingleConvRPNHead
         rpn_head = registry.RPN_HEADS[cfg.MODEL.RPN.RPN_HEAD]
         head = rpn_head(
             cfg, in_channels, anchor_generator.num_anchors_per_location()[0]
         )
 
+        # 获得边框编码器，主要用于计算边框偏差以及利用偏差计算预测边框
         rpn_box_coder = BoxCoder(weights=(1.0, 1.0, 1.0, 1.0))
 
         box_selector_train = make_rpn_postprocessor(cfg, rpn_box_coder, is_train=True)

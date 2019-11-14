@@ -4,14 +4,14 @@ import unittest
 import copy
 import torch
 # import modules to to register backbones
-from maskrcnn_benchmark.modeling.backbone import build_backbone # NoQA
+from maskrcnn_benchmark.modeling.backbone import build_backbone  # NoQA
 from maskrcnn_benchmark.modeling import registry
 from maskrcnn_benchmark.config import cfg as g_cfg
 from utils import load_config
 
-
 # overwrite configs if specified, otherwise default config is used
 BACKBONE_CFGS = {
+    "ShuffleNetV2": "e2e_mask_rcnn_ShuffleNet_V2.yaml",
     "MobileNetV3": "e2e_mask_rcnn_R_50_FPN_1x_copy.yaml",
     "R-50-FPN": "e2e_faster_rcnn_R_50_FPN_1x.yaml",
     "R-101-FPN": "e2e_faster_rcnn_R_101_FPN_1x.yaml",
@@ -50,6 +50,36 @@ class TestBackbones(unittest.TestCase):
                     cur_out.shape[:2],
                     torch.Size([N, backbone.out_channels])
                 )
+
+    def test_build_shufflenet_backbones(self):
+        ''' Make sure backbones run '''
+
+        self.assertGreater(len(registry.BACKBONES), 0)
+
+        name = "ShuffleNetV2"
+        print('Testing {}...'.format(name))
+        if name in BACKBONE_CFGS:
+            cfg = load_config(BACKBONE_CFGS[name])
+        else:
+            # Use default config if config file is not specified
+            cfg = copy.deepcopy(g_cfg)
+
+        backbone = build_backbone(cfg)
+
+        # make sures the backbone has `out_channels`
+        self.assertIsNotNone(
+            getattr(backbone, 'out_channels', None),
+            'Need to provide out_channels for backbone {}'.format(name)
+        )
+
+        N, C_in, H, W = 2, 3, 224, 256
+        input = torch.rand([N, C_in, H, W], dtype=torch.float32)
+        out = backbone(input)
+        for cur_out in out:
+            self.assertEqual(
+                cur_out.shape[:2],
+                torch.Size([N, backbone.out_channels])
+            )
 
 
 if __name__ == "__main__":

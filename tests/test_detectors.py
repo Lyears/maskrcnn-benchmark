@@ -20,6 +20,7 @@ CONFIG_FILES = [
     "e2e_mask_rcnn_R_50_C4_1x.yaml",
     "e2e_mask_rcnn_R_50_FPN_1x.yaml",
     "e2e_mask_rcnn_fbnet.yaml",
+    "e2e_mask_rcnn_MobileNet_V3.yaml",
 
     # keypoints
     # TODO: fail to run for random model due to empty head input

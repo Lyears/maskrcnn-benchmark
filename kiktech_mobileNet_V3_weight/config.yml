@@ -14,8 +14,8 @@ INPUT:
   BRIGHTNESS: 0.0
   CONTRAST: 0.0
   HUE: 0.0
-  MAX_SIZE_TEST: 1333
-  MAX_SIZE_TRAIN: 1333
+  MAX_SIZE_TEST: 1920
+  MAX_SIZE_TRAIN: 1920
   MIN_SIZE_TEST: 800
   MIN_SIZE_TRAIN:
   - 800
@@ -218,7 +218,7 @@ MODEL:
     STRADDLE_THRESH: 0
     USE_FPN: true
   RPN_ONLY: false
-  WEIGHT: ''
+  WEIGHT: ./kiktech_mobileNet_V3_weight/model_final.pth
 OUTPUT_DIR: ./kiktech_mobileNet_V3_weight/
 PATHS_CATALOG: /home/zmfan/PycharmProjects/detection/maskrcnn-benchmark/maskrcnn_benchmark/config/paths_catalog.py
 SOLVER:
@@ -227,7 +227,7 @@ SOLVER:
   CHECKPOINT_PERIOD: 14400
   GAMMA: 0.1
   IMS_PER_BATCH: 1
-  MAX_ITER: 144000
+  MAX_ITER: 432000
   MOMENTUM: 0.9
   STEPS:
   - 48000
