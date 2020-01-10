@@ -124,7 +124,7 @@ class FPNXconv1fcFeatureExtractor(nn.Module):
             xconvs.append(nn.ReLU(inplace=True))
 
         self.add_module("xconvs", nn.Sequential(*xconvs))
-        for modules in [self.xconvs,]:
+        for modules in [self.xconvs, ]:
             for l in modules.modules():
                 if isinstance(l, nn.Conv2d):
                     torch.nn.init.normal_(l.weight, std=0.01)

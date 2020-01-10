@@ -2,13 +2,16 @@
 import torch
 
 from maskrcnn_benchmark.modeling.box_coder import BoxCoder
+from maskrcnn_benchmark.modeling.matcher import Matcher
+from maskrcnn_benchmark.modeling.rpn.loss import generate_rpn_labels
 from maskrcnn_benchmark.structures.bounding_box import BoxList
-from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
+from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist, boxlist_iou
 from maskrcnn_benchmark.structures.boxlist_ops import boxlist_nms
 from maskrcnn_benchmark.structures.boxlist_ops import remove_small_boxes
 
 from ..utils import cat
 from .utils import permute_and_flatten
+
 
 class RPNPostProcessor(torch.nn.Module):
     """
@@ -17,14 +20,14 @@ class RPNPostProcessor(torch.nn.Module):
     """
 
     def __init__(
-        self,
-        pre_nms_top_n,
-        post_nms_top_n,
-        nms_thresh,
-        min_size,
-        box_coder=None,
-        fpn_post_nms_top_n=None,
-        fpn_post_nms_per_batch=True,
+            self,
+            pre_nms_top_n,
+            post_nms_top_n,
+            nms_thresh,
+            min_size,
+            box_coder=None,
+            fpn_post_nms_top_n=None,
+            fpn_post_nms_per_batch=True,
     ):
         """
         Arguments:
@@ -67,6 +70,21 @@ class RPNPostProcessor(torch.nn.Module):
             gt_box.add_field("objectness", torch.ones(len(gt_box), device=device))
 
         # TODO: add a function to filter the proposal
+        for proposals_per_image, targets_per_image in zip(proposals, targets):
+            matched_targets = match_targets_to_anchors(
+                proposals_per_image, targets_per_image
+            )
+            matched_idxs = matched_targets.get_field("matched_idxs")
+
+            labels_per_image = torch.zeros(proposals_per_image.bbox.shape[0], dtype=torch.uint8)
+
+            ignore_label_index = (targets_per_image.get_field("labels") == 1).nonzero()
+            for n in ignore_label_index:
+                inds_to_discard = matched_idxs == int(n)
+                labels_per_image[inds_to_discard] = 1
+
+            proposals_per_image.bbox[labels_per_image] = 0
+
         proposals = [
             cat_boxlist((proposal, gt_box))
             for proposal, gt_box in zip(proposals, gt_boxes)
@@ -210,3 +228,23 @@ def make_rpn_postprocessor(config, rpn_box_coder, is_train):
         fpn_post_nms_per_batch=fpn_post_nms_per_batch,
     )
     return box_selector
+
+
+def match_targets_to_anchors(anchor, target, copied_fields=[]):
+    matcher = Matcher(
+        high_threshold=0.5,
+        low_threshold=0.3,
+        allow_low_quality_matches=True
+    )
+    match_quality_matrix = boxlist_iou(target, anchor)
+    matched_idxs = matcher(match_quality_matrix)
+    # RPN doesn't need any fields from target
+    # for creating the labels, so clear them all
+    target = target.copy_with_fields(copied_fields)
+    # get the targets corresponding GT for each anchor
+    # NB: need to clamp the indices because we can have a single
+    # GT in the image, and matched_idxs can be -2, which goes
+    # out of bounds
+    matched_targets = target[matched_idxs.clamp(min=0)]
+    matched_targets.add_field("matched_idxs", matched_idxs)
+    return matched_targets

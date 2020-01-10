@@ -27,6 +27,7 @@ config_file = './configs/e2e_mask_rcnn_MobileNet_V3.yaml'
 cfg.merge_from_file(config_file)
 coco_demo = COCODemo(
     cfg,
+    category_num=4
     # TODO: add confidence threshold
 )
 device = torch.device(cfg.MODEL.DEVICE)

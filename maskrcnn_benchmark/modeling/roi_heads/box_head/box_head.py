@@ -15,10 +15,14 @@ class ROIBoxHead(torch.nn.Module):
 
     def __init__(self, cfg, in_channels):
         super(ROIBoxHead, self).__init__()
+        # 指定ROI层中box_head模块的特征提取类
         self.feature_extractor = make_roi_box_feature_extractor(cfg, in_channels)
+        # 指定边框预测类
         self.predictor = make_roi_box_predictor(
             cfg, self.feature_extractor.out_channels)
+        # 指定box_head模块特征提取后的一系列操作，包括修正预测边框等
         self.post_processor = make_roi_box_post_processor(cfg)
+        # 指定box_head模块的loss评估类
         self.loss_evaluator = make_roi_box_loss_evaluator(cfg)
 
     def forward(self, features, proposals, targets=None):

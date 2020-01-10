@@ -49,6 +49,7 @@ class FastRCNNLossComputation(object):
         matched_targets.add_field("matched_idxs", matched_idxs)
         return matched_targets
 
+    # 计算出所有预测边框所对应的基准边框(ground truth box)
     def prepare_targets(self, proposals, targets):
         labels = []
         regression_targets = []
