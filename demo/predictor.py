@@ -263,14 +263,6 @@ class COCODemo(object):
         # compute predictions
         with torch.no_grad():
             predictions = self.model(image_list)
-        # 对每张结果图进行instance level的输出筛选
-        for i in range(len(predictions)):
-            selected_ids = predictions[i].extra_fields['labels'] == self.category_num
-            # 按0-1取反
-            selected_ids = torch.ones_like(selected_ids) - selected_ids
-            predictions[i].bbox[selected_ids] = 0
-            predictions[i].extra_fields['scores'][selected_ids] = 0
-            predictions[i].extra_fields['mask'][selected_ids] = 0
         predictions = [o.to(self.cpu_device) for o in predictions]
 
         # always single image is passed at a time

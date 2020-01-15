@@ -20,9 +20,10 @@ class MaskPostProcessor(nn.Module):
     project the masks in the image according to the locations in boxes,
     """
 
-    def __init__(self, masker=None):
+    def __init__(self, masker=None, category_num=0):
         super(MaskPostProcessor, self).__init__()
         self.masker = masker
+        self.category_num = category_num
 
     def forward(self, x, boxes):
         """
@@ -35,6 +36,7 @@ class MaskPostProcessor(nn.Module):
             results (list[BoxList]): one BoxList for each image, containing
                 the extra field mask
         """
+        x, boxes = mask_categories_filter(x, boxes, self.category_num)
         mask_prob = x.sigmoid()
 
         # select masks coresponding to the predicted classes
@@ -154,8 +156,8 @@ def paste_mask_in_image(mask, box, im_h, im_w, thresh=0.5, padding=1):
     y_1 = min(box[3] + 1, im_h)
 
     im_mask[y_0:y_1, x_0:x_1] = mask[
-        (y_0 - box[1]) : (y_1 - box[1]), (x_0 - box[0]) : (x_1 - box[0])
-    ]
+                                (y_0 - box[1]): (y_1 - box[1]), (x_0 - box[0]): (x_1 - box[0])
+                                ]
     return im_mask
 
 
@@ -205,5 +207,27 @@ def make_roi_mask_post_processor(cfg):
         masker = Masker(threshold=mask_threshold, padding=1)
     else:
         masker = None
-    mask_post_processor = MaskPostProcessor(masker)
+    mask_post_processor = MaskPostProcessor(masker, cfg.MODEL.ROI_MASK_HEAD.CATEGORY_NUM)
     return mask_post_processor
+
+
+def mask_categories_filter(x, boxes, category_num):
+    if category_num == 0:
+        return x, boxes
+    else:
+        for i in range(0, len(boxes)):
+            selected_ids = boxes[i].extra_fields['labels'] == category_num
+            selected_ids = selected_ids.nonzero()
+            if len(selected_ids) == 0:
+                x = torch.zeros_like(x)
+                boxes[i].bbox = torch.zeros_like(boxes[i].bbox)
+                boxes[i].extra_fields['labels'] = torch.zeros_like(boxes[i].extra_fields['labels'])
+                boxes[i].extra_fields['scores'] = torch.zeros_like(boxes[i].extra_fields['scores'])
+                break
+            a = int(selected_ids[0])
+            b = int(selected_ids[-1]) + 1
+            x = x[a:b]
+            boxes[i].bbox = boxes[i].bbox[a:b]
+            boxes[i].extra_fields['labels'] = boxes[i].extra_fields['labels'][a:b]
+            boxes[i].extra_fields['scores'] = boxes[i].extra_fields['scores'][a:b]
+        return x, boxes

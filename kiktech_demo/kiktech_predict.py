@@ -89,6 +89,10 @@ def compute_label_color(labels):
 
 
 def evaluation_in_coco(f_image_path):
+    """
+    output the ground truth
+    :arg f_image_path: image path
+    """
     I = cv2.imread(f_image_path)
     plt.axis('off')
     plt.imshow(I)
@@ -117,6 +121,10 @@ def evaluation_in_coco(f_image_path):
 
 
 def evaluation_in_model(f_image_path):
+    """
+    output the prediction results
+    :arg f_image_path: image path
+    """
     I = cv2.imread(f_image_path)
     composite, total_time = coco_demo.run_on_opencv_image(I)
     print(total_time)
@@ -134,7 +142,7 @@ if __name__ == '__main__':
     # print(len(coco.loadCats(coco.getCatIds())))
     imgIds = coco.getImgIds()
     all_images = coco.loadImgs(imgIds)
-    # print("the time it takes to load each image is {}.".format(calculate_time(all_images, build_transforms(cfg))))
+    print("the time it takes to load each image is {}.".format(calculate_time(all_images, build_transforms(cfg))))
     img = coco.loadImgs(imgIds[np.random.randint(0, len(imgIds))])[0]
     image_path = test_images_dir + '/{}'.format(img['file_name'])
 
