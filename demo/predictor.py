@@ -149,7 +149,6 @@ class COCODemo(object):
     def __init__(
             self,
             cfg,
-            category_num=1,
             confidence_threshold=0.7,
             show_mask_heatmaps=False,
             masks_per_dim=2,
@@ -162,7 +161,6 @@ class COCODemo(object):
         self.device = torch.device(cfg.MODEL.DEVICE)
         self.model.to(self.device)
         self.min_image_size = min_image_size
-        self.category_num = category_num
 
         save_dir = cfg.OUTPUT_DIR
         checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)

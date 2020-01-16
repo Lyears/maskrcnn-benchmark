@@ -82,6 +82,11 @@ class MaskRCNNLossComputation(object):
             neg_inds = matched_idxs == Matcher.BELOW_LOW_THRESHOLD
             labels_per_image[neg_inds] = 0
 
+            ignore_label_index = (targets_per_image.get_field("labels") == 1).nonzero()
+            for n in ignore_label_index:
+                inds_to_discard = matched_idxs == int(n)
+                labels_per_image[inds_to_discard] = -1
+
             # mask scores are only computed on positive samples
             positive_inds = torch.nonzero(labels_per_image > 0).squeeze(1)
 

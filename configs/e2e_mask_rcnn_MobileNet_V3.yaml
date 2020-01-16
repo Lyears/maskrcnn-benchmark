@@ -32,7 +32,7 @@ MODEL:
     POOLER_SAMPLING_RATIO: 2
     RESOLUTION: 28
     SHARE_BOX_FEATURE_EXTRACTOR: False
-    CATEGORY_NUM: 3
+    CATEGORY_NUM: 0
 
   MASK_ON: True
 DATASETS:
@@ -50,5 +50,5 @@ SOLVER:
   CHECKPOINT_PERIOD: 36000
 TEST:
   IMS_PER_BATCH: 1
-OUTPUT_DIR: "./kiktech_mobileNet_V3_weight_progress_2/"
+OUTPUT_DIR: "./kiktech_mobileNet_V3_weight_progress_3/"
 DTYPE: "float16"

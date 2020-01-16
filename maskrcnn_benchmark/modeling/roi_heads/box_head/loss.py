@@ -70,6 +70,11 @@ class FastRCNNLossComputation(object):
             ignore_inds = matched_idxs == Matcher.BETWEEN_THRESHOLDS
             labels_per_image[ignore_inds] = -1  # -1 is ignored by sampler
 
+            ignore_label_index = (targets_per_image.get_field("labels") == 1).nonzero()
+            for n in ignore_label_index:
+                inds_to_discard = matched_idxs == int(n)
+                labels_per_image[inds_to_discard] = -1
+
             # compute regression targets
             regression_targets_per_image = self.box_coder.encode(
                 matched_targets.bbox, proposals_per_image.bbox
