@@ -18,7 +18,7 @@ MODEL:
     POOLER_RESOLUTION: 7
     POOLER_SCALES: (0.25, 0.125, 0.0625, 0.03125)
     POOLER_SAMPLING_RATIO: 2
-    FEATURE_EXTRACTOR: "FPN2MLPFeatureExtractor"
+    FEATURE_EXTRACTOR: "FPNXconv1fcFeatureExtractor"
     PREDICTOR: "FPNPredictor"
     NUM_CLASSES: 9
   ROI_MASK_HEAD:
@@ -31,18 +31,19 @@ MODEL:
     SHARE_BOX_FEATURE_EXTRACTOR: False
   MASK_ON: True
 DATASETS:
-  TRAIN: ("skyeye_cocostyle_0619_train",)
-  TEST: ("skyeye_cocostyle_0619_test",)
+  TRAIN: ("skyeye_cocostyle_train", "skyeye_cocostyle_val",)
+  TEST: ("skyeye_cocostyle_test",)
 #  TRAIN: ("skyeye_cocostyle_0619_train", "skyeye_cocostyle_0625_train", "skyeye_cocostyle_0706_train", "skyeye_cocostyle_0713_train", "skyeye_cocostyle_0718_train","skyeye_cocostyle_0619_val", "skyeye_cocostyle_0625_val", "skyeye_cocostyle_0706_val", "skyeye_cocostyle_0713_val", "skyeye_cocostyle_0718_val",)
 #  TEST: ("skyeye_cocostyle_0619_test", "skyeye_cocostyle_0625_test", "skyeye_cocostyle_0706_test", "skyeye_cocostyle_0713_test", "skyeye_cocostyle_0718_test",)
 DATALOADER:
-  SIZE_DIVISIBILITY: 8
+  SIZE_DIVISIBILITY: 32
 SOLVER:
-  BASE_LR: 0.02
+  BASE_LR: 0.01
   WEIGHT_DECAY: 0.0001
-  STEPS: (60000, 80000)
-  MAX_ITER: 180000
-  CHECKPOINT_PERIOD: 9000
+  STEPS: (24000, 32000)
+  MAX_ITER: 36000
+  CHECKPOINT_PERIOD: 3000
+  IMS_PER_BATCH: 1
 TEST:
   IMS_PER_BATCH: 1
-OUTPUT_DIR: "./kitech_weight/"
+OUTPUT_DIR: "./skyeye_maskrcnn_r101_fc/"

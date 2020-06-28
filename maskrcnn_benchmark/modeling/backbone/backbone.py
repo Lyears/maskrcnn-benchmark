@@ -67,6 +67,26 @@ def build_mobilenet_fpn_backbone(cfg):
     model.out_channels = out_channels
     return model
 
+@registry.BACKBONES.register("MobileNetV3-RETINANET")
+def build_mobilenet_fpn_p3p7_backbone(cfg):
+    body = mobilenet.MobileNetV3(cfg)
+    bneck2_in_channels = cfg.MODEL.MOBILENETS.STEM_OUT_CHANNELS
+    bneck2_out_channels = cfg.MODEL.MOBILENETS.BNECK2_OUT_CHANNELS
+    out_channels = cfg.MODEL.MOBILENETS.BACKBONE_OUT_CHANNELS
+    fpn = fpn_module.FPN(
+        in_channels_list=[
+            24, 40, 80, 160
+        ],
+        out_channels=out_channels,
+        conv_block=conv_with_kaiming_uniform(
+            cfg.MODEL.FPN.USE_GN, cfg.MODEL.FPN.USE_RELU
+        ),
+        top_blocks=fpn_module.LastLevelP6P7(160, out_channels),
+    )
+    model = nn.Sequential(OrderedDict([("body", body), ("fpn", fpn)]))
+    model.out_channels = out_channels
+    return model
+
 
 @registry.BACKBONES.register("ShuffleNetV2")
 def build_shufflenet_fpn_backbone(cfg):

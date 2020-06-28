@@ -37,7 +37,6 @@ MODEL:
   MASK_ON: True
 DATASETS:
   TRAIN: ("skyeye_cocostyle_train", "skyeye_cocostyle_val",)
-#  TRAIN: ("skyeye_cocostyle_train", )
   TEST: ("skyeye_cocostyle_test",)
 DATALOADER:
   SIZE_DIVISIBILITY: 32
@@ -50,5 +49,5 @@ SOLVER:
   CHECKPOINT_PERIOD: 36000
 TEST:
   IMS_PER_BATCH: 1
-OUTPUT_DIR: "./kiktech_mobileNet_V3_weight_progress_3/"
+OUTPUT_DIR: "./skyeye_maskrcnn_mobileNet_V3_weight_progress_3/"
 DTYPE: "float16"

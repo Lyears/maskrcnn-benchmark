@@ -1,6 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "GeneralizedRCNN"
-  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
+#  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
   RPN_ONLY: True
   RETINANET_ON: True
   BACKBONE:
@@ -25,14 +25,18 @@ MODEL:
     POOLER_SAMPLING_RATIO: 2
     FEATURE_EXTRACTOR: "FPN2MLPFeatureExtractor"
     PREDICTOR: "FPNPredictor"
+    NUM_CLASSES: 12
   RETINANET:
     SCALES_PER_OCTAVE: 3
     STRADDLE_THRESH: -1
     FG_IOU_THRESHOLD: 0.5
     BG_IOU_THRESHOLD: 0.4
+    NUM_CLASSES: 12
 DATASETS:
-  TRAIN: ("coco_2014_minival",)
-  TEST: ("coco_2014_minival",)
+#  TRAIN: ("coco_2014_minival",)
+#  TEST: ("coco_2014_minival",)
+  TRAIN: ("skyeye_cocostyle_train", "skyeye_cocostyle_val",)
+  TEST: ("skyeye_cocostyle_test",)
 INPUT:
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 1000
