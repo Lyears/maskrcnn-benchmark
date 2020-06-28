@@ -1,7 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "GeneralizedRCNN"
 #  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
-#  WEIGHT: "./kiktech_mobileNet_V3_weight_progress_1/model_final.pth"
   BACKBONE:
     CONV_BODY: "MobileNetV3"
   RETINANET:
